@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 
-typedef struct
+typedef struct s_array
 {
     void* data;
     size_t size;
@@ -12,8 +12,8 @@ typedef struct
 }   array;
 
 array* array_create(size_t capacity, size_t data_size);
-array* array_filter(array* src, int (*filter)(void*), void (*clone)(void* dst, void* src));
-array* array_copy(array* src, void (*clone)(void* dst, void* src));
+array* array_filter(const array* src, int (*filter)(const void*), void (*clone)(void* dst, const void* src));
+array* array_copy(const array* src, void (*clone)(void* dst, const void* src));
 
 void array_destroy(array* a, void (*del)(void*));
 void array_clear(array* a, void (*del)(void*));
@@ -22,7 +22,9 @@ void* array_erase_at(array *a, size_t pos, void (*del)(void*));
 
 void* array_push_back(array *a, void* data);
 
-int array_is_empty(array *a);
+int array_is_empty(const array *a);
+
+void array_sort(array* a, void (*predicate)(void* lhs, void* rhs));
 
 void array_map(array* a, void (*f)(void*));
 void* array_at(array *a, size_t pos);

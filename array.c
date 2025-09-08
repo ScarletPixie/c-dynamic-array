@@ -2,10 +2,12 @@
 
 #include <string.h>
 
-int array_is_empty(array *a)
+int array_is_empty(const array *a)
 {
     return a == NULL || a->size == 0 || a->data == NULL;
 }
+
+
 array* array_create(size_t capacity, size_t data_size)
 {
     array* const a = malloc(sizeof(*a));
@@ -22,7 +24,8 @@ array* array_create(size_t capacity, size_t data_size)
     }
     return a;
 }
-array* array_filter(array* src, int (*filter)(void*), void (*clone)(void*, void*))
+
+array* array_filter(const array* src, int (*filter)(const void*), void (*clone)(void*, const void*))
 {
     if (array_is_empty(src) || filter == NULL)
         return NULL;
@@ -45,7 +48,8 @@ array* array_filter(array* src, int (*filter)(void*), void (*clone)(void*, void*
 
     return a;
 }
-array* array_copy(array* src, void (*clone)(void* dst, void* src))
+
+array* array_copy(const array* src, void (*clone)(void* dst, const void* src))
 {
     if (array_is_empty(src))
         return NULL;
@@ -66,6 +70,8 @@ array* array_copy(array* src, void (*clone)(void* dst, void* src))
 
     return a;
 }
+
+
 void* array_at(array *a, size_t pos)
 {
     if (array_is_empty(a) || pos >= a->size)
@@ -137,6 +143,22 @@ void array_destroy(array* a, void (*del)(void*))
     free(a->data);
     free(a);
 }
+void array_clear(array* a, void (*del)(void*))
+{
+    if (a == NULL)
+        return;
+
+    unsigned char* start = a->data;
+    const size_t target_size = a->size * a->DATA_SIZE;
+    for (size_t i = 0; i < target_size; i += a->DATA_SIZE)
+    {
+        if (del != NULL)
+            del(start + i);
+    }
+    a->size = 0;
+}
+
+
 void array_map(array* a, void (*f)(void*))
 {
     if (a == NULL || a->data == NULL || f == NULL)
