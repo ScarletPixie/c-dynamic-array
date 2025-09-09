@@ -21,6 +21,7 @@ void* array_erase_back(array *a, void (*del)(void*));
 void* array_erase_at(array *a, size_t pos, void (*del)(void*));
 
 void* array_push_back(array *a, void* data);
+void* array_insert_at(array *a, void* data, size_t pos);
 
 int array_is_empty(const array *a);
 

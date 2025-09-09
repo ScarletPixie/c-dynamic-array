@@ -14,6 +14,7 @@ array* array_create(size_t capacity, size_t data_size)
     if (a == NULL)
         return NULL;
 
+    a->capacity = capacity;
     a->size = 0;
     a->DATA_SIZE = data_size;
     a->data = malloc(capacity * data_size);
