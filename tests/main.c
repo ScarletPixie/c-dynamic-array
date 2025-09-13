@@ -1,3 +1,4 @@
+#include "greatest.h"
 #include "tests.h"
 
 GREATEST_MAIN_DEFS();
@@ -5,8 +6,7 @@ GREATEST_MAIN_DEFS();
 int main(int argc, char **argv) {
     GREATEST_MAIN_BEGIN();
 
-    RUN_TEST(test_array_initialization);
-    RUN_TEST(test_array_insertion);
+    RUN_SUITE(test_array_creation);
 
     GREATEST_MAIN_END();
 }

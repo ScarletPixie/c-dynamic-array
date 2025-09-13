@@ -2,8 +2,8 @@
 #define TESTS_H
 
 #include "greatest.h"
+#include "../array.h"
 
-extern greatest_test_res test_array_initialization(void);
-extern greatest_test_res test_array_insertion(void);
+SUITE_EXTERN(test_array_creation);
 
 #endif

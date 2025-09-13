@@ -60,13 +60,14 @@ array* array_copy(const array* src, void (*clone)(void* dst, const void* src))
         return NULL;
     a->size = src->size;
 
-    unsigned char* start = src->data;
+    unsigned char* src_start = src->data;
+    unsigned char* dst_start = a->data;
     for (size_t i = 0; i < (src->size * src->DATA_SIZE); i += src->DATA_SIZE)
     {
         if (clone != NULL)
-            clone(a->data + i, src->data + i);
+            clone(dst_start + i, src_start + i);
         else
-            memcpy(a->data + i, src->data + i, src->DATA_SIZE);
+            memcpy(dst_start + i, src_start + i, src->DATA_SIZE);
     }
 
     return a;
@@ -80,6 +81,30 @@ void* array_at(array *a, size_t pos)
 
     unsigned char* start = a->data;
     return start + (pos * a->DATA_SIZE);
+}
+void* array_insert_at(array *a, void* data, size_t pos)
+{
+    if (a == NULL || data == NULL)
+        return NULL;
+
+    if (a->size >= a->capacity)
+    {
+        const size_t new_cap = ((a->capacity == 0) + a->capacity) * 2;
+        void* tmp = realloc(a->data, new_cap * a->DATA_SIZE);
+        if (tmp == NULL)
+            return NULL;
+        a->data = tmp;
+        a->capacity = new_cap;
+    }
+    pos = pos > a->size ? a->size : pos;
+    a->size++;
+    unsigned char* start = a->data;
+    memmove(
+            start + ((pos + 1) * a->DATA_SIZE), 
+            &start + (pos * a->DATA_SIZE), 
+            (a->size - (pos + 1))
+    );
+    return a->data;
 }
 void* array_push_back(array* a, void* data)
 {
