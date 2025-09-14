@@ -1,6 +1,14 @@
-NAME := libarray.a
-CFLGS := -Wall -Wextra -Werror -O2 -MP -MMD
-BUILD := ./build/
+ENVIRONMENT ?= prod
+
+ifeq ($(ENVIRONMENT), prod)
+	NAME := libarray.a
+	CFLGS := -Wall -Wextra -Werror -O2 -MP -MMD
+	BUILD := ./build/
+else
+	NAME := libarray-dev.a
+	CFLGS := -Wall -Wextra -Werror -O0 -ggdb3 -MP -MMD
+	BUILD := ./build-dev/
+endif
 
 SRCS := array.c
 OBJS := $(SRCS:.c=.o)

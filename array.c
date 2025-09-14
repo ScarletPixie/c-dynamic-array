@@ -35,16 +35,18 @@ array* array_filter(const array* src, int (*filter)(const void*), void (*clone)(
     if (a == NULL)
         return NULL;
 
-    unsigned char* start = src->data;
-    for (size_t i = 0; i < (src->size * src->DATA_SIZE); i += src->DATA_SIZE)
+    unsigned char* src_start = src->data;
+    unsigned char* dst_start = a->data;
+    for (size_t i = 0, j = 0; i < (src->size * src->DATA_SIZE); i += src->DATA_SIZE)
     {
-        if (!filter(start + i))
+        if (!filter(src_start + i))
             continue;
         if (clone != NULL)
-            clone(a->data + i, src->data + i);
+            clone(dst_start + i, src_start + i);
         else
-            memcpy(a->data + i, src->data + i, src->DATA_SIZE);
+            memcpy(dst_start + j, src_start + i, src->DATA_SIZE);
         a->size++;
+        j += a->DATA_SIZE;
     }
 
     return a;
@@ -101,9 +103,10 @@ void* array_insert_at(array *a, void* data, size_t pos)
     unsigned char* start = a->data;
     memmove(
             start + ((pos + 1) * a->DATA_SIZE), 
-            &start + (pos * a->DATA_SIZE), 
-            (a->size - (pos + 1))
+            start + (pos * a->DATA_SIZE), 
+            (a->size - (pos + 1)) * a->DATA_SIZE
     );
+    memcpy(start + pos, data, a->DATA_SIZE);
     return a->data;
 }
 void* array_push_back(array* a, void* data)

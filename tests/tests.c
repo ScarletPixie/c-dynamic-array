@@ -1,6 +1,7 @@
 #include "tests.h"
 #include "greatest.h"
 
+#include <stdio.h>
 #include <string.h>
 
 static char* my_strdup(const char* src);
@@ -20,14 +21,17 @@ TEST test_array_copy(void)
     ASSERT_EQ(a->size, b->size);
     ASSERT_EQ(a->DATA_SIZE, b->DATA_SIZE);
 
+    printf("%s : %s\n", (char*)array_at(a, 0), (char*)array_at(a, 1));
+    printf("%s : %s\n", (char*)array_at(a, 0), (char*)array_at(b, 1));
+
     for (int i = 0; i < 10; ++i)
         ASSERT_STR_EQ(array_at(a, i), array_at(b, i));
 
-    char* first_word = array_at(a, 0);
+    char* first_word = array_at(b, 0);
     first_word[0] = 'p';
+    ASSERT_NEQ(strcmp(first_word, array_at(a, 0)), 0);
     ASSERT_STR_EQ("pat", array_at(a, 0));
 
-    ASSERT_NEQ(strcmp(first_word, array_at(b, 0)), 0);
 
     array_destroy(a, free);
     array_destroy(b, free);
@@ -46,8 +50,8 @@ TEST test_array_filter(void)
     ASSERT_EQ(5, b->size);
     
     for (int i = 1, j = 0; j < 5; i += 2, ++j)
-        ASSERT_EQ(i, *(int*)array_at(a, j));
-    
+        ASSERT_EQ(i, *(int*)array_at(b, j));
+
     array_destroy(a, NULL);
     array_destroy(b, NULL);
     PASS();
@@ -63,11 +67,11 @@ TEST test_array_create(void)
     ASSERT_EQ(sizeof(int), a->DATA_SIZE);
 
     array* b = array_create(0, sizeof(int));
-    ASSERT_NEQ(NULL, a);
-    ASSERT_NEQ(NULL, a->data);
-    ASSERT_EQ(0, a->capacity);
-    ASSERT_EQ(0, a->size);
-    ASSERT_EQ(sizeof(int), a->DATA_SIZE);
+    ASSERT_NEQ(NULL, b);
+    ASSERT_NEQ(NULL, b->data);
+    ASSERT_EQ(0, b->capacity);
+    ASSERT_EQ(0, b->size);
+    ASSERT_EQ(sizeof(int), b->DATA_SIZE);
 
     array_destroy(a, NULL);
     array_destroy(b, NULL);
@@ -89,8 +93,9 @@ static int is_odd(const void* n)
 static char* my_strdup(const char* src)
 {
     const size_t size = strlen(src);
-    char* res = malloc(size * sizeof(char));
+    char* res = malloc((size + 1) * sizeof(char));
     memcpy(res, src, size * sizeof(char));
+    res[size] = '\0';
     return res;
 }
 static void clone_str(void* dst, const void* src)
@@ -102,7 +107,7 @@ static const char* get_word()
 {
     static const char* words[] = {"cat", "dog", "bat"};
     static size_t i;
-    
+    const char* word = words[i];
     i = (i + 1) % (sizeof(words) / sizeof(*words));
-    return words[i];
+    return word;
 }
