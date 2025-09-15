@@ -7,7 +7,7 @@
 static char* my_strdup(const char* src);
 static const char* get_word();
 
-static int is_odd(const void* n);
+static bool is_odd(const void* n);
 static void clone_str(void* dst, const void* src);
 
 TEST test_array_copy(void)
@@ -40,7 +40,7 @@ TEST test_array_filter(void)
     for (int i = 0; i < 10; ++i)
         array_push_back(a, &i);
 
-    array* b = array_filter(a, is_odd, NULL);
+    array* b = array_filter(a, is_odd, clone_str);
     ASSERT_NEQ(NULL, b);
     ASSERT_NEQ(NULL, b->data);
     ASSERT_EQ(5, b->size);
@@ -48,8 +48,8 @@ TEST test_array_filter(void)
     for (int i = 1, j = 0; j < 5; i += 2, ++j)
         ASSERT_EQ(i, *(int*)array_at(b, j));
 
-    array_destroy(a, NULL);
-    array_destroy(b, NULL);
+    array_destroy(a, free);
+    array_destroy(b, free);
     PASS();
 };
 
@@ -81,7 +81,7 @@ SUITE(test_array_creation)
     RUN_TEST(test_array_copy);
 }
 
-static int is_odd(const void* n)
+static bool is_odd(const void* n)
 {
     if (n == NULL) return 0;
     return *(const int*)n % 2;

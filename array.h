@@ -3,6 +3,13 @@
 
 #include <stdlib.h>
 
+#if __STDC_VERSION__ >= 199901L
+    #include <stdbool.h>
+#else
+    typedef enum { false, true } bool;
+#endif
+
+
 typedef struct s_array
 {
     void* data;
@@ -12,7 +19,7 @@ typedef struct s_array
 }   array;
 
 array* array_create(size_t capacity, size_t data_size);
-array* array_filter(const array* src, int (*filter)(const void*), void (*clone)(void* dst, const void* src));
+array* array_filter(const array* src, bool (*filter)(const void*), void (*clone)(void* dst, const void* src));
 array* array_copy(const array* src, void (*clone)(void* dst, const void* src));
 
 void array_destroy(array* a, void (*del)(void*));

@@ -26,7 +26,7 @@ array* array_create(size_t capacity, size_t data_size)
     return a;
 }
 
-array* array_filter(const array* src, int (*filter)(const void*), void (*clone)(void*, const void*))
+array* array_filter(const array* src, bool (*filter)(const void*), void (*clone)(void*, const void*))
 {
     if (array_is_empty(src) || filter == NULL)
         return NULL;
