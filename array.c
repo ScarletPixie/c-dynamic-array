@@ -82,7 +82,7 @@ void* array_at(array *a, size_t pos)
         return NULL;
 
     unsigned char* start = a->data;
-    return start + (pos * a->DATA_SIZE);
+    return *(void**)(start + (pos * a->DATA_SIZE));
 }
 void* array_insert_at(array *a, void* data, size_t pos)
 {
@@ -137,7 +137,7 @@ void* array_erase_back(array *a, void (*del)(void*))
     unsigned char* target = start + ((a->size - 1) * a->DATA_SIZE);
 
     if (del != NULL)
-        del(target);
+        del(*(void**)target);
     a->size--;
     return a->data;
 }
@@ -150,7 +150,7 @@ void* array_erase_at(array *a, size_t pos, void (*del)(void*))
     unsigned char* target = start + (pos * a->DATA_SIZE);
 
     if (del != NULL)
-        del(target);
+        del(*(void**)target);
     a->size--;
     if (pos != a->size - 1)
         memmove(target, target + a->DATA_SIZE, (a->size - pos) * a->DATA_SIZE);
@@ -166,7 +166,7 @@ void array_destroy(array* a, void (*del)(void*))
         unsigned char* start = a->data;
         const size_t target_size = a->size * a->DATA_SIZE;
         for (size_t i = 0; i < target_size; i += a->DATA_SIZE)
-            del(start + i);
+            del(*(void**)(start + i));
     }
 
     free(a->data);
@@ -182,7 +182,7 @@ void array_clear(array* a, void (*del)(void*))
     for (size_t i = 0; i < target_size; i += a->DATA_SIZE)
     {
         if (del != NULL)
-            del(start + i);
+            del(*(void**)(start + i));
     }
     a->size = 0;
 }
