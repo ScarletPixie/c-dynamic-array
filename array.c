@@ -106,7 +106,7 @@ void* array_insert_at(array *a, void* data, size_t pos)
             start + (pos * a->DATA_SIZE), 
             (a->size - (pos + 1)) * a->DATA_SIZE
     );
-    memcpy(start + pos, data, a->DATA_SIZE);
+    memcpy(start + (pos * a->DATA_SIZE), data, a->DATA_SIZE);
     return a->data;
 }
 void* array_push_back(array* a, void* data)
@@ -161,7 +161,7 @@ void array_destroy(array* a, void (*del)(void*))
     if (a == NULL)
         return;
 
-    if (del != NULL)
+    if (del != NULL && a->data != NULL)
     {
         unsigned char* start = a->data;
         const size_t target_size = a->size * a->DATA_SIZE;

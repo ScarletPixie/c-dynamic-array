@@ -21,17 +21,13 @@ TEST test_array_copy(void)
     ASSERT_EQ(a->size, b->size);
     ASSERT_EQ(a->DATA_SIZE, b->DATA_SIZE);
 
-    printf("%s : %s\n", (char*)array_at(a, 0), (char*)array_at(a, 1));
-    printf("%s : %s\n", (char*)array_at(a, 0), (char*)array_at(b, 1));
-
     for (int i = 0; i < 10; ++i)
         ASSERT_STR_EQ(array_at(a, i), array_at(b, i));
 
     char* first_word = array_at(b, 0);
     first_word[0] = 'p';
     ASSERT_NEQ(strcmp(first_word, array_at(a, 0)), 0);
-    ASSERT_STR_EQ("pat", array_at(a, 0));
-
+    ASSERT_STR_EQ("pat", array_at(b, 0));
 
     array_destroy(a, free);
     array_destroy(b, free);
