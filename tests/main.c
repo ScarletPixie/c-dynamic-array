@@ -9,6 +9,5 @@ int main(int argc, char **argv) {
     RUN_SUITE(test_array_creation);
     RUN_SUITE(test_array_modification);
 
-
     GREATEST_MAIN_END();
 }

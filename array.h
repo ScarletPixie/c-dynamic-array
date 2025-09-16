@@ -23,13 +23,25 @@
         size_t capacity;\
     }   array_##ALIAS;\
 \
+\
     typedef void array_##ALIAS##_del_cb(TYPE);\
+    typedef void array_##ALIAS##_map_cb(TYPE*);\
     typedef TYPE array_##ALIAS##_clone_cb(const TYPE);\
     typedef bool array_##ALIAS##_filter_cb(const TYPE);\
 \
+\
     array_##ALIAS* array_##ALIAS##_create(size_t capacity);\
+    array_##ALIAS* array_##ALIAS##_copy(const array_##ALIAS* src, array_##ALIAS##_clone_cb* clone);\
+    array_##ALIAS* array_##ALIAS##_filter(\
+        const array_##ALIAS* src,\
+        array_##ALIAS##_filter_cb* filter,\
+        array_##ALIAS##_clone_cb* clone);\
+\
     void array_##ALIAS##_delete(array_##ALIAS* a, array_##ALIAS##_del_cb* del);\
+\
+    void array_##ALIAS##_map(array_##ALIAS* a, array_##ALIAS##_map_cb* cb);\
     TYPE* array_##ALIAS##_at(array_##ALIAS* a, size_t pos);\
+    TYPE* array_##ALIAS##_insert_at(array_##ALIAS* a, TYPE data, size_t pos);\
     TYPE* array_##ALIAS##_push_back(array_##ALIAS* a, TYPE data);\
 
 #define DEFINE_ARRAY(TYPE, ALIAS)\
@@ -113,6 +125,15 @@
         free(a->data);\
         free(a);\
     };\
+\
+\
+    void array_##ALIAS##_map(array_##ALIAS* a, array_##ALIAS##_map_cb* cb)\
+    {\
+        if (a == NULL || cb == NULL || a->data == NULL)\
+            return;\
+        for (size_t i = 0; i < a->size; ++i)\
+            cb(&a->data[i]);\
+    }\
     TYPE* array_##ALIAS##_at(array_##ALIAS* a, size_t pos)\
     {\
         if (a == NULL || a->data == NULL || pos >= a->size)\

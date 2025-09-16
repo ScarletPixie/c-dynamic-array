@@ -1,9 +1,10 @@
 #include "tests.h"
 #include "greatest.h"
 
+#include <ctype.h>
 #include <string.h>
 
-
+static void to_upper(char**s);
 static bool is_odd(int n);
 static char* my_strdup(const char* s);
 static void str_free(char* s);
@@ -17,6 +18,8 @@ TEST test_array_filter(void);
 
 TEST test_array_insertion(void);
 TEST test_array_access(void);
+TEST test_array_map(void);
+
 
 SUITE(test_array_creation)
 {
@@ -28,9 +31,21 @@ SUITE(test_array_modification)
 {
     RUN_TEST(test_array_access);
     RUN_TEST(test_array_insertion);
+    RUN_TEST(test_array_map);
 }
 
 
+TEST test_array_map(void)
+{
+    array_str* a = array_str_create(100);
+    for (size_t i = 0; i < 10; ++i)
+        array_str_push_back(a, my_strdup("potato"));
+    array_str_map(a, to_upper);
+    for (size_t i = 0; i < 10; ++i)
+        ASSERT_STR_EQ("POTATO", *array_str_at(a, i));
+    array_str_delete(a, str_free);
+    PASS();
+}
 TEST test_array_filter(void)
 {
     array_int* a = array_int_create(100);
@@ -133,3 +148,10 @@ static char* my_strdup(const char* s)
 }
 static void str_free(char* s) { free(s); }
 static bool is_odd(int n) { return n % 2; }
+static void to_upper(char**s)
+{
+    char *str = *s;
+    size_t size = strlen(str);
+    for (size_t i = 0; i < size; ++i)
+        str[i] = toupper(str[i]);
+}
