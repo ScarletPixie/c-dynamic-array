@@ -4,22 +4,21 @@
 #include <stdlib.h>
 
 #define DECLARE_ARRAY(TYPE, ALIAS)\
-    typedef struct s_array_##ALIAS array_##ALIAS;\
+    typedef struct s_array_##ALIAS\
+    {\
+        TYPE* data;\
+        size_t size;\
+        size_t capacity;\
+    }   array_##ALIAS;\
 \
     typedef void array_##ALIAS##_del_cb(TYPE);\
 \
     array_##ALIAS* array_##ALIAS##_create(size_t capacity);\
     void array_##ALIAS##_delete(array_##ALIAS* a, array_##ALIAS##_del_cb* del);\
     TYPE* array_##ALIAS##_at(array_##ALIAS* a, size_t pos);\
-    TYPE* array_##ALIAS##_push_back(array_##ALIAS* a, TYPE* data);\
+    TYPE* array_##ALIAS##_push_back(array_##ALIAS* a, TYPE data);\
 
 #define DEFINE_ARRAY(TYPE, ALIAS)\
-    struct s_array_##ALIAS\
-    {\
-        TYPE* data;\
-        size_t size;\
-        size_t capacity;\
-    };\
     array_##ALIAS* array_##ALIAS##_create(size_t capacity)\
     {\
         array_##ALIAS* a = calloc(capacity, sizeof(*a));\
@@ -54,9 +53,9 @@
             return NULL;\
         return &a->data[pos];\
     };\
-    TYPE* array_##ALIAS##_push_back(array_##ALIAS* a, TYPE* data)\
+    TYPE* array_##ALIAS##_push_back(array_##ALIAS* a, TYPE data)\
     {\
-        if (a == NULL || data == NULL)\
+        if (a == NULL)\
             return NULL;\
 \
         if (a->size >= a->capacity)\
@@ -68,7 +67,7 @@
             a->data = tmp;\
             a->capacity = new_cap;\
         }\
-        a->data[a->size] = *data;\
+        a->data[a->size] = data;\
         a->size++;\
         return a->data;\
     }
