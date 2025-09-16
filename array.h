@@ -53,6 +53,30 @@
             return NULL;\
         return &a->data[pos];\
     };\
+    TYPE* array_##ALIAS##_insert_at(array_##ALIAS* a, TYPE data, size_t pos)\
+    {\
+        if (a == NULL)\
+            return NULL;\
+\
+        pos = pos > a->size ? a->size : pos;\
+        if (a->size >= a->capacity)\
+        {\
+            const size_t new_cap = ((a->capacity == 0) + a->capacity) * 2;\
+            void* tmp = realloc(a->data, new_cap * sizeof(TYPE));\
+            if (tmp == NULL)\
+                return NULL;\
+            a->data = tmp;\
+            a->capacity = new_cap;\
+        }\
+        memmove(\
+            &a->data[pos + 1],\
+            &a->data[pos],\
+            (a->size - pos) * sizeof(TYPE)\
+        );\
+        a->size++;\
+        a->data[pos] = data;\
+        return a->data;\
+    }\
     TYPE* array_##ALIAS##_push_back(array_##ALIAS* a, TYPE data)\
     {\
         if (a == NULL)\

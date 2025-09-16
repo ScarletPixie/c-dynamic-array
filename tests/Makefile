@@ -9,6 +9,9 @@ DEPS := $(OBJS:.o=.d)
 
 all: $(NAME)
 
+test: all
+	./$(NAME)
+
 $(NAME): $(OBJS) $(TEST_SUBJ)
 	$(CC) $(CFLGS) $(TEST_SUBJ) $^ -o $@
 
