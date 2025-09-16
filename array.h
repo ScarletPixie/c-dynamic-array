@@ -3,6 +3,18 @@
 
 #include <stdlib.h>
 
+#ifndef __cplusplus
+    #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+        #include <stdbool.h>
+    #else
+        #ifndef __bool_true_false_are_defined
+        typedef enum { false = 0, true = 1 } bool;
+        #define __bool_true_false_are_defined 1
+        #endif
+    #endif
+#endif
+
+
 #define DECLARE_ARRAY(TYPE, ALIAS)\
     typedef struct s_array_##ALIAS\
     {\
@@ -12,6 +24,8 @@
     }   array_##ALIAS;\
 \
     typedef void array_##ALIAS##_del_cb(TYPE);\
+    typedef TYPE array_##ALIAS##_clone_cb(const TYPE);\
+    typedef bool array_##ALIAS##_filter_cb(const TYPE);\
 \
     array_##ALIAS* array_##ALIAS##_create(size_t capacity);\
     void array_##ALIAS##_delete(array_##ALIAS* a, array_##ALIAS##_del_cb* del);\
@@ -19,13 +33,66 @@
     TYPE* array_##ALIAS##_push_back(array_##ALIAS* a, TYPE data);\
 
 #define DEFINE_ARRAY(TYPE, ALIAS)\
-    array_##ALIAS* array_##ALIAS##_create(size_t capacity)\
+    array_##ALIAS* array_##ALIAS##_filter(\
+        const array_##ALIAS* src,\
+        array_##ALIAS##_filter_cb* filter,\
+        array_##ALIAS##_clone_cb* clone)\
     {\
-        array_##ALIAS* a = calloc(capacity, sizeof(*a));\
+        if (src == NULL || filter == NULL)\
+            return NULL;\
+        array_##ALIAS* a = malloc(sizeof(array_##ALIAS));\
+        a->size = 0;\
+        a->capacity = src->size;\
+        a->data = malloc(src->size * sizeof(TYPE));\
+        if (a->data == NULL)\
+        {\
+            free(a);\
+            return NULL;\
+        }\
+        for (size_t i = 0, j = 0; i < src->size; ++i)\
+        {\
+            if (!filter(src->data[i]))\
+                continue;\
+            if (clone != NULL)\
+                a->data[j] = clone(src->data[i]);\
+            else\
+                a->data[j] = src->data[i];\
+            a->size++;\
+            ++j;\
+        }\
+        return a;\
+    }\
+    array_##ALIAS* array_##ALIAS##_copy(const array_##ALIAS* src, array_##ALIAS##_clone_cb* clone)\
+    {\
+        if (src == NULL)\
+            return NULL;\
+        array_##ALIAS* a = malloc(sizeof(array_##ALIAS));\
         if (a == NULL)\
             return NULL;\
-        a->capacity = 42;\
-        a->data = malloc(capacity * sizeof(*(a->data)));\
+        a->size = src->size;\
+        a->capacity = src->capacity;\
+        a->data = malloc(src->capacity * sizeof(TYPE));\
+        if (a->data == NULL)\
+        {\
+            free(a);\
+            return NULL;\
+        }\
+        for (size_t i = 0; i < src->size; ++i)\
+        {\
+            if (clone != NULL)\
+                a->data[i] = clone(src->data[i]);\
+            else\
+                a->data[i] = src->data[i];\
+        }\
+        return a;\
+    }\
+    array_##ALIAS* array_##ALIAS##_create(size_t capacity)\
+    {\
+        array_##ALIAS* a = calloc(1, sizeof(array_##ALIAS));\
+        if (a == NULL)\
+            return NULL;\
+        a->capacity = capacity;\
+        a->data = malloc(capacity * sizeof(TYPE));\
         if (a->data == NULL)\
         {\
             free(a);\
@@ -43,9 +110,8 @@
             for (size_t i = 0; i < a->size; ++i)\
                 del(a->data[i]);\
         }\
-        a->size = 0;\
-        a->capacity = 0;\
-        a->data = NULL;\
+        free(a->data);\
+        free(a);\
     };\
     TYPE* array_##ALIAS##_at(array_##ALIAS* a, size_t pos)\
     {\
@@ -94,6 +160,7 @@
         a->data[a->size] = data;\
         a->size++;\
         return a->data;\
-    }
+    }\
+
 
 #endif

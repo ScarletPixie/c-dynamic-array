@@ -5,5 +5,6 @@
 #include "../array.h"
 
 SUITE_EXTERN(test_array_creation);
+SUITE_EXTERN(test_array_modification);
 
 #endif

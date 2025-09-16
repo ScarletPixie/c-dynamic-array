@@ -1,5 +1,5 @@
 NAME := test_array
-CFLGS := -Wall -Wextra -Werror -ggdb3 -MP -MMD
+CFLGS := -Wall -Wextra -Werror -Wno-unused-function -ggdb3 -MP -MMD
 BUILD := ./build/
 
 SRCS := main.c tests.c
