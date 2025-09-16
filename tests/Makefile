@@ -7,15 +7,10 @@ OBJS := $(SRCS:.c=.o)
 OBJS := $(addprefix $(BUILD), $(OBJS))
 DEPS := $(OBJS:.o=.d)
 
-TEST_SUBJ := ../libarray-dev.a
-
 all: $(NAME)
 
 $(NAME): $(OBJS) $(TEST_SUBJ)
 	$(CC) $(CFLGS) $(TEST_SUBJ) $^ -o $@
-
-$(TEST_SUBJ):
-	@$(MAKE) ENVIRONMENT=dev  -C .. all
 
 $(BUILD)%.o: %.c
 	@mkdir -p $(@D)

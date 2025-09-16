@@ -3,38 +3,74 @@
 
 #include <stdlib.h>
 
-#if __STDC_VERSION__ >= 199901L
-    #include <stdbool.h>
-#else
-    typedef enum { false, true } bool;
-#endif
+#define DECLARE_ARRAY(TYPE, ALIAS)\
+    typedef struct s_array_##ALIAS array_##ALIAS;\
+\
+    typedef void array_##ALIAS##_del_cb(TYPE);\
+\
+    array_##ALIAS* array_##ALIAS##_create(size_t capacity);\
+    void array_##ALIAS##_delete(array_##ALIAS* a, array_##ALIAS##_del_cb* del);\
+    TYPE* array_##ALIAS##_at(array_##ALIAS* a, size_t pos);\
+    TYPE* array_##ALIAS##_push_back(array_##ALIAS* a, TYPE* data);\
 
-
-typedef struct s_array
-{
-    void* data;
-    size_t size;
-    size_t capacity;
-    size_t DATA_SIZE;
-}   array;
-
-array* array_create(size_t capacity, size_t data_size);
-array* array_filter(const array* src, bool (*filter)(const void*), void (*clone)(void* dst, const void* src));
-array* array_copy(const array* src, void (*clone)(void* dst, const void* src));
-
-void array_destroy(array* a, void (*del)(void*));
-void array_clear(array* a, void (*del)(void*));
-void* array_erase_back(array *a, void (*del)(void*));
-void* array_erase_at(array *a, size_t pos, void (*del)(void*));
-
-void* array_push_back(array *a, void* data);
-void* array_insert_at(array *a, void* data, size_t pos);
-
-int array_is_empty(const array *a);
-
-void array_sort(array* a, void (*predicate)(void* lhs, void* rhs));
-
-void array_map(array* a, void (*f)(void*));
-void* array_at(array *a, size_t pos);
+#define DEFINE_ARRAY(TYPE, ALIAS)\
+    struct s_array_##ALIAS\
+    {\
+        TYPE* data;\
+        size_t size;\
+        size_t capacity;\
+    };\
+    array_##ALIAS* array_##ALIAS##_create(size_t capacity)\
+    {\
+        array_##ALIAS* a = calloc(capacity, sizeof(*a));\
+        if (a == NULL)\
+            return NULL;\
+        a->capacity = 42;\
+        a->data = malloc(capacity * sizeof(*(a->data)));\
+        if (a->data == NULL)\
+        {\
+            free(a);\
+            return NULL;\
+        }\
+        return a;\
+    };\
+    void array_##ALIAS##_delete(array_##ALIAS* a, array_##ALIAS##_del_cb* del)\
+    {\
+        if (a == NULL)\
+            return;\
+\
+        if (del != NULL && a->data != NULL)\
+        {\
+            for (size_t i = 0; i < a->size; ++i)\
+                del(a->data[i]);\
+        }\
+        a->size = 0;\
+        a->capacity = 0;\
+        a->data = NULL;\
+    };\
+    TYPE* array_##ALIAS##_at(array_##ALIAS* a, size_t pos)\
+    {\
+        if (a == NULL || a->data == NULL || pos >= a->size)\
+            return NULL;\
+        return &a->data[pos];\
+    };\
+    TYPE* array_##ALIAS##_push_back(array_##ALIAS* a, TYPE* data)\
+    {\
+        if (a == NULL || data == NULL)\
+            return NULL;\
+\
+        if (a->size >= a->capacity)\
+        {\
+            const size_t new_cap = ((a->capacity == 0) + a->capacity) * 2;\
+            void* tmp = realloc(a->data, new_cap * sizeof(TYPE));\
+            if (tmp == NULL)\
+                return NULL;\
+            a->data = tmp;\
+            a->capacity = new_cap;\
+        }\
+        a->data[a->size] = *data;\
+        a->size++;\
+        return a->data;\
+    }
 
 #endif
